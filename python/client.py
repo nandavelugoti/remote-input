@@ -2,7 +2,7 @@ import json
 import socket
 import sys
 
-from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QLabel, QVBoxLayout, QHBoxLayout
+from PyQt5.QtWidgets import QApplication, QWidget, QPushButton
 from PyQt5.QtCore import pyqtSignal, pyqtSlot, QEvent, QObject, QPoint
 from queue import Queue
 from threading import Thread

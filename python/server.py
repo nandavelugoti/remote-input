@@ -72,12 +72,16 @@ class VirtualKeyboardMouse:
 
     def process(self, rawdata):
         try:
-            decoded_data = json.loads(rawdata.decode("utf-8"))
-            if decoded_data['type'] == 'KEY':
-                self.Keyboard.interrupt(KeyboardEvent(decoded_data['value']))
-            elif decoded_data['type'] == 'MOUSE':
-                [X, Y] = decoded_data['value'].split(',')
-                self.Mouse.interrupt(MouseEvent(X, Y))
+            # crude data sanitization TODO: fix this
+            data_str = rawdata.decode('utf-8')
+            data_str = data_str[data_str.index('{'):data_str.rindex('}')+1]
+            decoded_data_ls = json.loads(f'[{data_str}]')
+            for decoded_data in decoded_data_ls:
+                if decoded_data['type'] == 'KEY':
+                    self.Keyboard.interrupt(KeyboardEvent(decoded_data['value']))
+                elif decoded_data['type'] == 'MOUSE':
+                    [X, Y] = decoded_data['value'].split(',')
+                    self.Mouse.interrupt(MouseEvent(X, Y))
         except:
             print('Couldn\'t process data', rawdata)
 
@@ -85,7 +89,7 @@ class VirtualKeyboardMouse:
 class HIDServer(Thread):
     def __init__(self, PORT=12321):
         super().__init__()
-        self.HOST = "127.0.0.1"
+        self.HOST = '127.0.0.1'
         self.PORT = PORT
         self.daemon = True
         self.virtdev = VirtualKeyboardMouse()
@@ -96,12 +100,12 @@ class HIDServer(Thread):
         while not self.stopped:
             with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
                 s.bind((self.HOST, self.PORT))
-                # print("Is anyone there?")
+                # print('Is anyone there?')
                 print(f'[HIDServer] Started at {self.HOST}:{self.PORT}')
                 s.listen()
                 conn, addr = s.accept()
                 with conn:
-                    print(f"Client connected: {addr}")
+                    print(f'Client connected: {addr}')
                     while not self.stopped:
                         data = conn.recv(1024)
                         if data:
@@ -135,7 +139,7 @@ class AppUI(QWidget):
 
         self.resize(300,300)
         self.setLayout(hbox)
-        self.setWindowTitle("VirtualKeyboardMouse")
+        self.setWindowTitle('VirtualKeyboardMouse')
 
 if __name__ == '__main__':
     hidserver = HIDServer()
